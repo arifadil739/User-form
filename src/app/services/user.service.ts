@@ -14,7 +14,7 @@ export class UserService {
 
     createUser(payload: any) {
         this.spinnerService.setLoading(true);
-        return this.http.post(environment.apiUrl + '/auth/signup', payload, {
+        return this.http.post(environment.apiUrl + '/Auth/signup', payload, {
             observe: 'response',
              withCredentials: true 
         }

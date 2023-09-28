@@ -1,21 +1,22 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, Validators,FormArray,FormBuilder,AbstractControl,ValidatorFn } from '@angular/forms';
+import { FormGroup, FormControl, Validators, FormArray, FormBuilder, AbstractControl, ValidatorFn } from '@angular/forms';
 import { UserService } from './services/user.service';
-import {ToastrService} from "ngx-toastr"
+import { ToastrService } from "ngx-toastr"
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit{
+export class AppComponent implements OnInit {
   title = 'user-form';
   userForm = new FormGroup({
     firstName: new FormControl('', [Validators.required]),
     lastName: new FormControl('', [Validators.required]),
-    username: new FormControl('', [Validators.required,this.noSpaceValidator()]),
-    email: new FormControl('', [Validators.required,Validators.email]),
+    username: new FormControl('', [Validators.required, this.noSpaceValidator()]),
+    email: new FormControl('', [Validators.required, Validators.email]),
     department: new FormControl('', [Validators.required]),
     mobileNumber: new FormControl('', [Validators.required]),
+    role: new FormControl('', [Validators.required]),
     telephoneNumber: new FormControl('', [Validators.required]),
     brandName: new FormControl('', [Validators.required]),
 
@@ -39,15 +40,15 @@ export class AppComponent implements OnInit{
   })
   constructor(
     private formBuilder: FormBuilder,
-    private userService:UserService,
+    private userService: UserService,
     private ToasterService: ToastrService
-  ){
+  ) {
 
   }
   ngOnInit(): void {
     this.addContactPerson()
   }
-   noSpaceValidator(): ValidatorFn {
+  noSpaceValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
       const value = control.value;
       if (/\s/.test(value)) { // Check if value contains any whitespace
@@ -57,7 +58,7 @@ export class AppComponent implements OnInit{
     };
   }
   submitForm() {
-    // this.ToasterService.info("checlk")
+    // console.log(this.userForm.value, "values")
     const billingName = this.userForm.get("billingName")
     const billingStreet = this.userForm.get("billingStreet")
     const billingHouseNr = this.userForm.get("billingHouseNr")
@@ -98,12 +99,44 @@ export class AppComponent implements OnInit{
         });
       }
     });
-    if (!this.userForm.valid){
+    if (!this.userForm.valid) {
       return;
     }
     let payload = this.userForm.value
-    this.userService.createUser(payload).subscribe((res)=>{
-      console.log(res,"check res")
+    let objToSend:any = {
+      firstName: this.userForm.value.firstName,
+      lastName:this.userForm.value.lastName,
+      username:this.userForm.value.username,
+      email:this.userForm.value.username,
+      department:this.userForm.value.department,
+      mobileNumber:this.userForm.value.mobileNumber,
+      telephoneNumber:this.userForm.value.telephoneNumber,
+      role:this.userForm.value.role,
+      status:0,
+      brandName:this.userForm.value.brandName,
+      billingDifferent:this.userForm.value.checkbox,
+      deliveryAddress:{
+        name:this.userForm.value.deliveryName,
+        street:this.userForm.value.deliveryStreet,
+        houseNr:this.userForm.value.deliveryHouseNr,
+        postcode:this.userForm.value.deliveryPostcode,
+        city:this.userForm.value.deliveryCity,
+        country:this.userForm.value.deliveryCountry,
+      },
+      contactPersons:this.contactPersons.value
+    }
+    if(this.userForm.value.checkbox){
+      objToSend.billingAddress = {
+        name:this.userForm.value.billingName,
+        street:this.userForm.value.billingStreet,
+        houseNr:this.userForm.value.billingHouseNr,
+        postcode:this.userForm.value.billingPostcode,
+        city:this.userForm.value.billingCity,
+        country:this.userForm.value.billingCountry,
+      }
+    }
+    console.log(objToSend,"objToSend")
+    this.userService.createUser(objToSend).subscribe((res) => {
     })
     console.log(this.userForm.value, "check values")
   }
@@ -113,7 +146,7 @@ export class AppComponent implements OnInit{
   private markFormGroupTouched(formGroup: FormGroup) {
     Object.values(formGroup.controls).forEach((control: any) => {
       control.markAsTouched();
-  
+
       if (control instanceof FormGroup) {
         this.markFormGroupTouched(control);
       }
@@ -122,7 +155,7 @@ export class AppComponent implements OnInit{
   addContactPerson(): void {
     if (this.contactPersons.length < 5) {
       const contactPersonGroup = this.formBuilder.group({
-        id: [`${this.contactPersons.length+1}`],
+        id: [`${this.contactPersons.length + 1}`],
         name: ['', Validators.required],
         telephone: ['', Validators.required],
         mobile: ['', Validators.required],
@@ -133,7 +166,7 @@ export class AppComponent implements OnInit{
     }
   }
   removeContactPerson(index: number): void {
-    if(this.contactPersons.length<2){
+    if (this.contactPersons.length < 2) {
       return
     }
     this.contactPersons.removeAt(index);

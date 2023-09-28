@@ -58,6 +58,14 @@
           </div>
         </div>
         <div class="mb-3">
+          <label class="form-label">Role</label>
+          <input formControlName="role" type="text" class="form-control">
+          <div [hidden]="userForm.controls.role.valid || userForm.controls.role.pristine"
+            class="text-danger">
+            Role is required
+          </div>
+        </div>
+        <div class="mb-3">
           <label class="form-label">Telephone Number*</label>
           <input formControlName="telephoneNumber" type="text" class="form-control">
           <div [hidden]="userForm.controls.telephoneNumber.valid || userForm.controls.telephoneNumber.pristine"
